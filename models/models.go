@@ -4,5 +4,5 @@ package models
 type Response struct {
     Email     string `json:"email"`
     Token     string `json:"token"`
-    IsTeacher bool   `json:"isTeacher"` // добавляем булево значение
+    IsTeacher bool   `json:"isTeacher"`
 }

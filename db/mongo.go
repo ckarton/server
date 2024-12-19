@@ -17,20 +17,20 @@ func init() {
 	collection = client.Database("myapp").Collection("users")
 }
 
-// SaveUser сохраняет пользователя в базу данных
+// сохраняет пользователя в базу данных
 func SaveUser(user models.User) error {
 	_, err := collection.InsertOne(context.Background(), user)
 	return err
 }
 
-// GetUserByEmail получает пользователя по email
+// получает пользователя по email
 func GetUserByEmail(email string) (models.User, error) {
 	var user models.User
 	err := collection.FindOne(context.Background(), map[string]string{"email": email}).Decode(&user)
 	return user, err
 }
 
-// UserExists проверяет, существует ли пользователь с таким email
+// проверяет существует ли пользователь с таким email
 func UserExists(email string) bool {
 	var user models.User
 	err := collection.FindOne(context.Background(), map[string]string{"email": email}).Decode(&user)

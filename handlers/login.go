@@ -35,11 +35,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Ответ на фронт с булевым значением isTeacher
+    // Ответ на фронт 
     response := models.Response{
         Email:     user.Email,
         Token:     token,
-        IsTeacher: user.IsTeacher, // получаем из базы
+        IsTeacher: user.IsTeacher, 
     }
 
     json.NewEncoder(w).Encode(response)
