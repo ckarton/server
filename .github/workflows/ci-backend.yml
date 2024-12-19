@@ -1,0 +1,34 @@
+name: Build and Start Backend
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    build-and-start-backend:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up Go
+              uses: actions/setup-go@v2
+              with:
+                  go-version: "1.22.5" # Укажите нужную версию Go
+
+            - name: Install dependencies
+              run: go mod tidy # Устанавливает зависимости
+
+            - name: Build project
+              run: go build -o backend . # Сборка проекта в исполняемый файл
+
+            - name: Run project
+              run: |
+                  nohup ./backend &  # Запуск бэкенда в фоновом режиме
+                  sleep 10  # Ждем, пока сервер запустится (можно настроить в зависимости от времени старта)
+                  curl --silent --fail http://localhost:8080  # Проверка доступности сервера (измените порт, если нужно)
