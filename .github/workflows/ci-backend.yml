@@ -29,6 +29,7 @@ jobs:
 
             - name: Run project
               run: |
-                  nohup ./backend &  # Запуск бэкенда в фоновом режиме
-                  sleep 10  # Ждем, пока сервер запустится (можно настроить в зависимости от времени старта)
-                  curl --silent --fail http://localhost:8080  # Проверка доступности сервера (измените порт, если нужно)
+                  nohup ./backend > backend.log 2>&1 &
+                  sleep 10
+                  tail -n 100 backend.log  # Просмотр последних 100 строк логов
+                  curl --silent --fail http://localhost:8080/health # Проверка статуса
