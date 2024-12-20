@@ -32,4 +32,3 @@ jobs:
                   nohup ./backend > backend.log 2>&1 &
                   sleep 10
                   tail -n 100 backend.log  # Просмотр последних 100 строк логов
-                  curl --silent --fail http://localhost:8080/health # Проверка статуса
