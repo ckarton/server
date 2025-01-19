@@ -1,13 +1,14 @@
 package handlers
 
 import (
-    "encoding/json"
-    "net/http"
-    "myapp/db"
-    "myapp/models"
-    "myapp/utils"
+	"encoding/json"
+	"myapp/db"
+	"myapp/models"
+	"myapp/utils"
+	"net/http"
 )
 
+// LoginHandler для логина пользователя
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
     var input models.User
     if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -28,18 +29,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Генерация токена
-    token, err := GenerateToken(user.Email)
+    // Генерация токенов
+    accessToken, refreshToken, err := GenerateTokens(user.Email)
     if err != nil {
-        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        http.Error(w, "Failed to generate tokens", http.StatusInternalServerError)
         return
     }
 
-    // Ответ на фронт 
+    // Ответ на фронт
     response := models.Response{
-        Email:     user.Email,
-        Token:     token,
-        IsTeacher: user.IsTeacher, 
+        Email:       user.Email,
+        AccessToken: accessToken,
+        RefreshToken: refreshToken,
+        IsTeacher:   user.IsTeacher,
     }
 
     json.NewEncoder(w).Encode(response)

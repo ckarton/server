@@ -22,16 +22,17 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Генерация токена
-	token, err := GenerateToken(user.Email)
+	// Генерация токенов
+	accessToken, refreshToken, err := GenerateTokens(user.Email)
 	if err != nil {
-		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		http.Error(w, "Failed to generate tokens", http.StatusInternalServerError)
 		return
 	}
 
 	// Записываем пользователя в Mongo
 	user.Password = hashedPassword
-	user.Token = token
+	user.AccessToken = accessToken
+	user.RefreshToken = refreshToken
 	err = db.SaveUser(user)
 	if err != nil {
 		http.Error(w, "Failed to save user", http.StatusInternalServerError)
@@ -41,7 +42,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Ответ на фронт
 	response := models.Response{
 		Email:     user.Email,
-		Token:     token,
+		AccessToken: accessToken,
+		RefreshToken: refreshToken,
 		IsTeacher: user.IsTeacher,
 	}
 

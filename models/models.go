@@ -2,7 +2,9 @@ package models
 
 // Response содержит данные, возвращаемые на фронт
 type Response struct {
-    Email     string `json:"email"`
-    Token     string `json:"token"`
-    IsTeacher bool   `json:"isTeacher"`
+    Email       string `json:"email"`
+    AccessToken string `json:"access_token"` 
+    RefreshToken string `json:"refresh_token"`
+    IsTeacher   bool   `json:"isTeacher"`
 }
+

@@ -1,23 +1,43 @@
 package handlers
 
 import (
-	"time"
-	"github.com/golang-jwt/jwt/v5"
 	"errors"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtKey = []byte("your_secret_key")
 
-// GenerateToken генерирует JWT токен для пользователя
-func GenerateToken(email string) (string, error) {
-	claims := &jwt.RegisteredClaims{
+// GenerateTokens генерирует access_token и refresh_token для пользователя
+func GenerateTokens(email string) (string, string, error) {
+	// Генерация access_token
+	accessTokenClaims := &jwt.RegisteredClaims{
 		Subject:   email,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // срок действия токена 24 часа
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // срок действия 24 часа
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
+	accessTokenString, err := accessToken.SignedString(jwtKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Генерация refresh_token
+	refreshTokenClaims := &jwt.RegisteredClaims{
+		Subject:   email,
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * 24 * time.Hour)), // срок действия 30 дней
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	}
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
+	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessTokenString, refreshTokenString, nil
 }
 
 // ValidateToken проверяет действительность JWT токена
