@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
 // UploadHandler загружает файлы в нужную папку
@@ -46,8 +49,12 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		os.MkdirAll(saveDir, 0755)
 	}
 
-	// Создаем путь для сохранения файла
-	filePath := filepath.Join(saveDir, handler.Filename)
+	// Генерируем уникальное имя файла
+	ext := filepath.Ext(handler.Filename) // Получаем расширение
+	newFileName := uuid.New().String() + ext
+	filePath := filepath.Join(saveDir, newFileName)
+
+	// Создаем файл для сохранения
 	outFile, err := os.Create(filePath)
 	if err != nil {
 		http.Error(w, "Ошибка при создании файла", http.StatusInternalServerError)
@@ -62,7 +69,12 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Отправляем ответ с путём к файлу
+	// Формируем URL для доступа к файлу
+	baseURL := "http://localhost:8080"
+	mediaURL := fmt.Sprintf("%s/%s", baseURL, filepath.ToSlash(filePath))
+
+	// Отправляем JSON-ответ
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Файл загружен в: %s", filePath)
+	json.NewEncoder(w).Encode(map[string]string{"mediaUrl": mediaURL})
 }

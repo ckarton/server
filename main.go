@@ -16,6 +16,10 @@ func main() {
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
+	// Разрешаем доступ к загруженным файлам по HTTP
+	fs := http.FileServer(http.Dir("uploads"))
+	http.Handle("/uploads/", http.StripPrefix("/uploads/", fs))
+
 	// Обслуживание статических файлов
 	http.Handle("/", c.Handler(http.FileServer(http.Dir("./public"))))
 
