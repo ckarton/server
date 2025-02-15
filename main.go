@@ -11,17 +11,21 @@ import (
 func main() {
 	// Настройка CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // Разрешить запросы с любого источника (можно ограничить для продакшн)
+		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
-	// Обслуживание статических файлов с CORS
+	// Обслуживание статических файлов
 	http.Handle("/", c.Handler(http.FileServer(http.Dir("./public"))))
 
-	// Настройка API маршрутов с CORS
+	// API маршруты
 	http.HandleFunc("/register", handlers.RegisterHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
+
+	// Маршруты для работы с S3
+	http.HandleFunc("/upload", handlers.UploadHandler)
+
 
 	// Запуск сервера
 	log.Println("Server running on port 8080...")
