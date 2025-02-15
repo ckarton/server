@@ -10,6 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"myapp/db"
+	"myapp/models"
+
 	"github.com/google/uuid"
 )
 
@@ -95,6 +98,22 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		// Формируем URL для доступа к файлу
 		mediaURL := fmt.Sprintf("%s/uploads/%s/%s", baseURL, getFolderByType(fileType), newFileName)
 		uploadedFiles = append(uploadedFiles, mediaURL)
+
+		// Сохраняем информацию о файле в базу данных
+		fileInfo := models.FileInfo{
+			FileName:   fileHeader.Filename,
+			FileURL:    mediaURL,
+			FileType:   fileType,
+			UploadedBy: r.FormValue("uploadedBy"), // предполагается, что email пользователя передается в форме
+			Size:       fileHeader.Size,
+		}
+
+		_, err = db.SaveFile(fileInfo)
+		if err != nil {
+			log.Printf("Ошибка сохранения информации о файле: %v", err)
+			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Отправляем JSON-ответ
